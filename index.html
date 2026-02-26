@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>វត្តមានបុគ្គលិក</title>
+<link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Moul&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--g:#D4AF37;--gl:#F4D03F;--d:#0A0A0F;--d2:#12121A;--d3:#1A1A28;--a:#6C4FE0;--a2:#A855F7;--t:#E8E8F0;--td:#8888AA;--gr:#2ECC71;--r:#E74C3C;--cb:rgba(255,255,255,.04);--b:rgba(255,255,255,.08)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--d);color:var(--t);font-family:'Battambang',serif;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(108,79,224,.15) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(212,175,55,.1) 0%,transparent 50%);pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:14px}
+.hdr{text-align:center;padding:24px 20px 16px;border-bottom:1px solid var(--b);margin-bottom:18px}
+.hdr h1{font-family:'Moul',serif;font-size:1.4rem;background:linear-gradient(135deg,var(--g),var(--gl),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+.hdr p{color:var(--td);font-size:.78rem}
+.tabs{display:flex;gap:5px;margin-bottom:16px;background:var(--d2);padding:5px;border-radius:12px;border:1px solid var(--b);overflow-x:auto}
+.tab{flex:1;min-width:80px;padding:8px 5px;border:none;border-radius:8px;background:transparent;color:var(--td);cursor:pointer;font-family:'Battambang',serif;font-size:.74rem;transition:all .2s;white-space:nowrap}
+.tab.active{background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-weight:700}
+.tab:not(.active):hover{color:var(--t);background:var(--cb)}
+.pan{display:none}.pan.active{display:block}
+.card{background:var(--cb);border:1px solid var(--b);border-radius:14px;padding:16px;margin-bottom:12px}
+.ct{font-family:'Moul',serif;font-size:.88rem;color:var(--g);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.ct::before{content:'';width:4px;height:15px;background:linear-gradient(to bottom,var(--g),var(--a2));border-radius:2px;display:block}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fr{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+label{font-size:.68rem;color:var(--td);text-transform:uppercase;letter-spacing:.05em}
+input,select{background:rgba(255,255,255,.06);border:1px solid var(--b);border-radius:8px;padding:7px 10px;color:var(--t);font-family:'Battambang',serif;font-size:.84rem;outline:none;transition:border-color .2s}
+input:focus,select:focus{border-color:var(--a2)}
+select option{background:var(--d2)}
+.btn{padding:8px 16px;border:none;border-radius:9px;cursor:pointer;font-family:'Battambang',serif;font-size:.84rem;font-weight:700;transition:all .2s}
+.btn-p{background:linear-gradient(135deg,var(--a),var(--a2));color:#fff}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(108,79,224,.4)}
+.btn-g{background:linear-gradient(135deg,var(--g),var(--gl));color:var(--d)}
+.btn-g:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(212,175,55,.4)}
+.btn-s{padding:4px 10px;font-size:.7rem}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.78rem}
+th{background:rgba(108,79,224,.2);padding:8px 10px;text-align:left;color:var(--a2);font-size:.69rem;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--b);color:var(--t)}
+tr:hover td{background:rgba(255,255,255,.02)}
+.bdg{display:inline-block;padding:2px 7px;border-radius:20px;font-size:.68rem;font-weight:700;white-space:nowrap}
+.bon{background:rgba(46,204,113,.15);color:var(--gr);border:1px solid rgba(46,204,113,.3)}
+.blate{background:rgba(231,76,60,.15);color:var(--r);border:1px solid rgba(231,76,60,.3)}
+.babs{background:rgba(130,130,130,.15);color:#aaa;border:1px solid rgba(130,130,130,.3)}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}
+@media(max-width:500px){.sg{grid-template-columns:repeat(2,1fr)}}
+.sc{background:var(--cb);border:1px solid var(--b);border-radius:12px;padding:11px;text-align:center}
+.sn{font-family:'Moul',serif;font-size:1.6rem;background:linear-gradient(135deg,var(--g),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sl{font-size:.68rem;color:var(--td);margin-top:2px}
+.eg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:9px}
+.ec{background:rgba(255,255,255,.04);border:1px solid var(--b);border-radius:12px;padding:11px;transition:border-color .3s}
+.ec:hover{border-color:rgba(168,85,247,.35)}
+.en{font-size:.86rem;font-weight:700;margin-bottom:2px}
+.er{font-size:.69rem;color:var(--td);margin-bottom:8px}
+.erow{display:flex;gap:6px;align-items:flex-end}
+.erow .fg{flex:1}
+.ebtns{display:flex;flex-direction:column;gap:3px;padding-bottom:1px}
+.est{margin-top:4px;font-size:.72rem;min-height:18px;display:flex;align-items:center;flex-wrap:wrap;gap:3px}
+.ri{display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;border:1px solid var(--b);margin-bottom:6px;background:var(--cb);transition:all .2s}
+.ri:hover{border-color:var(--a2)}
+.rn{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.86rem;flex-shrink:0}
+.r1{background:linear-gradient(135deg,#FFD700,#FFA500);color:#000}
+.r2{background:linear-gradient(135deg,#C0C0C0,#A8A8A8);color:#000}
+.r3{background:linear-gradient(135deg,#CD7F32,#A0522D);color:#fff}
+.ro{background:var(--d3);color:var(--td)}
+.rinfo{flex:1;min-width:0}
+.rname{font-weight:700;font-size:.84rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rdet{font-size:.68rem;color:var(--td)}
+.rbw{width:85px;flex-shrink:0}
+.rb{height:4px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.rbf{height:100%;border-radius:3px;background:linear-gradient(to right,var(--a),var(--a2))}
+.rp{font-size:.7rem;color:var(--g);font-weight:700;text-align:right;margin-top:1px}
+.toast{position:fixed;bottom:16px;right:16px;background:var(--d2);border:1px solid var(--gr);color:var(--gr);padding:8px 14px;border-radius:9px;font-size:.78rem;z-index:9999;opacity:0;transform:translateY(6px);transition:all .3s}
+.toast.show{opacity:1;transform:translateY(0)}
+#co{display:none;position:fixed;inset:0;background:rgba(0,0,0,.87);z-index:1000;align-items:center;justify-content:center;padding:12px}
+#co.show{display:flex}
+.cbox{background:#fff;color:#1a1a1a;max-width:640px;width:100%;border-radius:4px;overflow:hidden;max-height:90vh;overflow-y:auto}
+.cbr{display:flex;gap:8px;justify-content:flex-end;padding:8px;background:var(--d2);position:sticky;top:0;z-index:2}
+.cert{padding:28px 38px;background:#FFFDF7;border:10px solid #D4AF37;font-family:Georgia,serif;color:#1a1a1a;text-align:center}
+.cib{border:2px solid rgba(212,175,55,.4);padding:18px 26px}
+.clogo{margin-bottom:6px;display:flex;justify-content:center}
+.clogo img{height:76px;width:auto;object-fit:contain}
+.csn{font-family:'Moul',serif;font-size:.84rem;color:#8B1A1A;margin-bottom:2px}
+.cst{color:#D4AF37;font-size:.9rem;letter-spacing:4px;margin:5px 0}
+.ctm{font-family:'Moul',serif;font-size:1.55rem;color:#8B1A1A;margin:7px 0;line-height:1.3}
+.csub{font-size:.76rem;color:#888;text-transform:uppercase;letter-spacing:.15em;margin-bottom:9px}
+.cdiv{display:flex;align-items:center;gap:9px;margin:10px 0;color:#D4AF37;font-size:.95rem}
+.cdiv::before,.cdiv::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,#D4AF37,transparent)}
+.cbody{font-size:.86rem;color:#333;line-height:2.1}
+.cpre{font-size:.78rem;color:#777;font-style:italic}
+.cname{font-family:'Battambang',serif;font-size:1.9rem;color:#2C3E7A;font-weight:700;margin:5px 0;text-decoration:underline;text-decoration-color:#D4AF37;text-underline-offset:4px}
+.cpos{font-size:.88rem;color:#555;font-style:italic;margin-bottom:8px}
+.cdesc{font-size:.79rem;color:#444;line-height:1.9;margin-bottom:9px}
+.cft{margin-top:18px;display:flex;justify-content:space-between;align-items:flex-end}
+.csig{text-align:center}
+.csl{width:110px;border-bottom:1px solid #555;margin:0 auto 4px}
+.csln{font-size:.69rem;color:#666;font-family:'Battambang',serif}
+.cmed{display:flex;flex-direction:column;align-items:center}
+.cme{font-size:3.2rem;line-height:1;filter:drop-shadow(0 2px 5px rgba(212,175,55,.5))}
+.es{text-align:center;padding:24px;color:var(--td);font-size:.81rem}
+.es .ic{font-size:2.2rem;margin-bottom:7px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <h1>ប្រព័ន្ធគ្រប់គ្រងវត្តមានបុគ្គលិក</h1>
+    <p>Employee Attendance Management System</p>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="ST('t1',this)">📋 វត្តមាន</button>
+    <button class="tab" onclick="ST('t2',this)">🗂️ ប្រវត្តិ</button>
+    <button class="tab" onclick="ST('t3',this)">📊 របាយការណ៍</button>
+    <button class="tab" onclick="ST('t4',this)">🏆 ចំណាត់ថ្នាក់</button>
+    <button class="tab" onclick="ST('t5',this)">👥 បុគ្គលិក</button>
+  </div>
+
+  <!-- TAB 1 -->
+  <div id="t1" class="pan active">
+    <div class="card">
+      <div class="ct">📅 ជ្រើសថ្ងៃ &amp; វេន</div>
+      <div class="fr">
+        <div class="fg"><label>កាលបរិច្ឆេទ</label><input type="date" id="ad" onchange="RAE()"></div>
+        <div class="fg"><label>វេន</label>
+          <select id="ash" onchange="RAE()">
+            <option value="morning">☀️ ព្រឹក — ម៉ោង ៧:00 (cutoff ៧:05)</option>
+            <option value="afternoon">🌤️ រសៀល — ម៉ោង ១:00PM (cutoff ១:05)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="sg">
+      <div class="sc"><div class="sn" id="s1">0</div><div class="sl">✅ មុនម៉ោង (ចូលច្រើនដង)</div></div>
+      <div class="sc"><div class="sn" id="s2">0</div><div class="sl">⏰ ក្រោយម៉ោង (ចូលច្រើនដង)</div></div>
+      <div class="sc"><div class="sn" id="s3">0</div><div class="sl">❌ អវត្តមាន</div></div>
+      <div class="sc"><div class="sn" id="s4">0</div><div class="sl">⏳ មិនទាន់</div></div>
+    </div>
+    <div class="card">
+      <div class="ct">⏱️ បញ្ចូលម៉ោងចូលការ <span style="font-size:.66rem;color:var(--td);font-weight:normal">(ម្ដងៗ input reset auto)</span></div>
+      <div class="eg" id="eg"></div>
+    </div>
+  </div>
+
+  <!-- TAB 2 -->
+  <div id="t2" class="pan">
+    <div class="card">
+      <div class="ct">🗂️ ប្រវត្តិ</div>
+      <div class="fr" style="margin-bottom:12px">
+        <div class="fg"><label>ថ្ងៃ</label><input type="date" id="hd" onchange="RH()"></div>
+        <div class="fg"><label>បុគ្គលិក</label><select id="he" onchange="RH()"><option value="">-- ទាំងអស់ --</option></select></div>
+        <div class="fg"><label>វេន</label>
+          <select id="hs" onchange="RH()">
+            <option value="">-- ទាំងអស់ --</option>
+            <option value="morning">☀️ ព្រឹក</option>
+            <option value="afternoon">🌤️ រសៀល</option>
+          </select>
+        </div>
+      </div>
+      <div class="tw"><table><thead><tr><th>ឈ្មោះ</th><th>តួនាទី</th><th>ថ្ងៃ</th><th>វេន</th><th>ម៉ោងចូល</th><th>ស្ថានភាព</th></tr></thead><tbody id="hb"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- TAB 3 -->
+  <div id="t3" class="pan">
+    <div class="sg">
+      <div class="sc"><div class="sn" id="rt">0</div><div class="sl">👥 បុគ្គលិក</div></div>
+      <div class="sc"><div class="sn" id="rr">0</div><div class="sl">📋 កំណត់ត្រា</div></div>
+      <div class="sc"><div class="sn" id="rp">0%</div><div class="sl">✅ % មុនម៉ោង</div></div>
+      <div class="sc"><div class="sn" id="rtop" style="font-size:.82rem;padding-top:8px">-</div><div class="sl">🏆 ឆ្នើម</div></div>
+    </div>
+    <div class="card">
+      <div class="ct">📊 សង្ខេបម្នាក់ៗ</div>
+      <div class="tw"><table>
+        <thead><tr>
+          <th>ឈ្មោះ</th><th>តួនាទី</th>
+          <th style="background:rgba(46,204,113,.2);color:var(--gr)">☀️មុន ៧:05</th>
+          <th style="background:rgba(231,76,60,.2);color:var(--r)">☀️ក្រោយ ៧:05</th>
+          <th style="background:rgba(46,204,113,.2);color:var(--gr)">🌤️មុន ១:05</th>
+          <th style="background:rgba(231,76,60,.2);color:var(--r)">🌤️ក្រោយ ១:05</th>
+          <th>❌អវត្ត</th><th>ពិន្ទុ</th>
+        </tr></thead>
+        <tbody id="rb"></tbody>
+      </table></div>
+    </div>
+    <!-- Download Late Report -->
+    <div class="card">
+      <div class="ct">📥 Download របាយការណ៍អ្នកមកយឺត</div>
+      <div class="fr" style="margin-bottom:12px">
+        <div class="fg">
+          <label>ប្រភេទ</label>
+          <select id="dt" onchange="RLP()">
+            <option value="all">📋 ព្រឹក + រសៀល</option>
+            <option value="morning">☀️ ក្រោយ ៧:05 (ព្រឹក)</option>
+            <option value="afternoon">🌤️ ក្រោយ ១:05 (រសៀល)</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>ត្រង​ថ្ងៃ (ទទេ = ទាំងអស់)</label>
+          <input type="date" id="dd" onchange="RLP()">
+        </div>
+        <div class="fg" style="align-self:flex-end">
+          <button class="btn btn-g" onclick="DLR()" style="white-space:nowrap">⬇️ Download Excel</button>
+        </div>
+      </div>
+      <div id="lpw" style="display:none">
+        <div class="tw"><table>
+          <thead><tr>
+            <th>#</th><th>ឈ្មោះ</th><th>តួនាទី</th><th>ថ្ងៃ</th><th>វេន</th>
+            <th>ម៉ោងចូល</th><th>យឺតប៉ុន្មាន</th><th>ដងយឺតសរុប</th>
+          </tr></thead>
+          <tbody id="lpb"></tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4 -->
+  <div id="t4" class="pan">
+    <div class="card">
+      <div class="ct">🏆 ចំណាត់ថ្នាក់</div>
+      <div id="rl"><div class="es"><div class="ic">🏆</div>មិនទាន់មានទិន្នន័យ</div></div>
+    </div>
+  </div>
+
+  <!-- TAB 5 -->
+  <div id="t5" class="pan">
+    <div class="card">
+      <div class="ct">➕ បន្ថែមបុគ្គលិក</div>
+      <div class="fr">
+        <div class="fg"><label>ឈ្មោះ</label><input type="text" id="nn" placeholder="ឈ្មោះ..."></div>
+        <div class="fg"><label>តួនាទី</label><input type="text" id="nr" placeholder="ផ្នែក..."></div>
+        <div class="fg" style="align-self:flex-end"><button class="btn btn-p" onclick="AE()">✅ បន្ថែម</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">👥 បញ្ជីបុគ្គលិក</div>
+      <div class="tw"><table><thead><tr><th>#</th><th>ឈ្មោះ</th><th>តួនាទី</th><th></th></tr></thead><tbody id="etb"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- Certificate -->
+<div id="co">
+  <div class="cbox">
+    <div class="cbr">
+      <button class="btn btn-g btn-s" onclick="PC()">🖨️ បោះពុម្ព</button>
+      <button class="btn btn-s" style="background:var(--d3);color:var(--t)" onclick="CC()">✕</button>
+    </div>
+    <div id="cc"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const LOGO='https://i.ibb.co/RTWkghgd/Logo-Mikid-removebg-preview.png';
+const DEF=[
+  {name:"Chanthoeurn Chhoeurn",role:"IT"},
+  {name:"Ashley Villela",role:"English Teacher"},
+  {name:"វិន សេរីភាព",role:"Assistant Teacher"},
+  {name:"CHOT HORN",role:"Teacher"},
+  {name:"មុឹង ស្រីនីត",role:"Teacher"},
+  {name:"អឿន កាណាល់",role:"Teacher"},
+  {name:"ប៉ូ សូឌិន",role:"Admin / Teacher"},
+  {name:"Leang Sopheavy",role:"Computer Teacher"},
+  {name:"Chamnan Veasna",role:"English Teacher"},
+  {name:"Born Chhorda",role:"Teacher"},
+  {name:"SOK SREYPICE",role:"English Teacher"},
+  {name:"Eng Sreynin",role:"Receptionist"},
+  {name:"កុសល សៀកម៉េង",role:"Assistant Teacher"},
+  {name:"Vat Mouy Saing",role:"Chinese Teacher"},
+  {name:"ឈឹមវ៉ាន លីហង្ស",role:"Teacher"},
+  {name:"Dorn Sreyneth",role:"English Teacher"}
+];
+let emps=JSON.parse(localStorage.getItem('e4')||'null');
+if(!emps){emps=DEF.map((e,i)=>({id:i+1,...e}));localStorage.setItem('e4',JSON.stringify(emps));}
+let atts=JSON.parse(localStorage.getItem('a4')||'[]');
+function sv(){localStorage.setItem('e4',JSON.stringify(emps));localStorage.setItem('a4',JSON.stringify(atts));}
+
+function TT(msg,ok=1){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.borderColor=ok?'var(--gr)':'var(--r)';t.style.color=ok?'var(--gr)':'var(--r)';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function ST(id,btn){
+  document.querySelectorAll('.pan').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');btn.classList.add('active');
+  if(id==='t3'){UR();RLP();}
+  if(id==='t4')URK();
+  if(id==='t2'){FHS();RH();}
+  if(id==='t5')RET();
+}
+
+// classify
+function CL(tm,sh){
+  if(!tm)return'absent';
+  const[h,m]=tm.split(':').map(Number);
+  return(h*60+m)<=(sh==='morning'?425:785)?'ontime':'late';
+}
+
+function SB(r){
+  if(!r||r.status==='absent')return'<span class="bdg babs">❌ អវត្តមាន</span>';
+  const cl=CL(r.timeIn,r.shift),cut=r.shift==='morning'?'៧:05':'១:05';
+  return cl==='ontime'
+    ?`<span class="bdg bon">✅ មុន ${cut} (${r.timeIn})</span>`
+    :`<span class="bdg blate">⏰ ក្រោយ ${cut} (${r.timeIn})</span>`;
+}
+
+// ---- ATTENDANCE ENTRY ----
+function RAE(){
+  const dt=document.getElementById('ad').value,sh=document.getElementById('ash').value;
+  const cl=sh==='morning'?'(cutoff ៧:05)':'(cutoff ១:05)';
+  document.getElementById('eg').innerHTML=emps.map(emp=>{
+    const rs=atts.filter(a=>a.empId===emp.id&&a.date===dt&&a.shift===sh);
+    const lr=rs.length?rs[rs.length-1]:null;
+    const ct=rs.length?`<span style="background:rgba(168,85,247,.18);color:var(--a2);border:1px solid rgba(168,85,247,.3);border-radius:10px;padding:1px 6px;font-size:.65rem">${rs.length}ដង</span>`:'';
+    const sh2=lr?SB(lr)+' '+ct:'';
+    return `<div class="ec" id="ec${emp.id}">
+      <div class="en">${emp.name}</div><div class="er">${emp.role}</div>
+      <div class="erow">
+        <div class="fg"><label>ម៉ោង ${cl}</label>
+          <input type="time" id="ti${emp.id}" onchange="SE(${emp.id},'${dt}','${sh}')">
+        </div>
+        <div class="ebtns">
+          <button class="btn btn-s" style="background:rgba(130,130,130,.15);color:#aaa;border:1px solid rgba(130,130,130,.3)" onclick="MA(${emp.id},'${dt}','${sh}',1)">❌</button>
+          <button class="btn btn-s" style="background:rgba(108,79,224,.15);color:var(--a2);border:1px solid rgba(108,79,224,.3)" onclick="MA(${emp.id},'${dt}','${sh}',0)">↺</button>
+        </div>
+      </div>
+      <div class="est" id="es${emp.id}">${sh2}</div>
+    </div>`;
+  }).join('');
+  UL(dt,sh);
+}
+
+function SE(id,dt,sh){
+  const ti=document.getElementById('ti'+id).value;
+  if(!ti)return;
+  const r={empId:id,date:dt,shift:sh,timeIn:ti,status:'present'};
+  atts.push(r);sv();
+  const rs=atts.filter(a=>a.empId===id&&a.date===dt&&a.shift===sh);
+  const ct=`<span style="background:rgba(168,85,247,.18);color:var(--a2);border:1px solid rgba(168,85,247,.3);border-radius:10px;padding:1px 6px;font-size:.65rem">${rs.length}ដង</span>`;
+  document.getElementById('es'+id).innerHTML=SB(r)+' '+ct;
+  const c=document.getElementById('ec'+id);
+  if(c){c.style.borderColor='var(--gr)';setTimeout(()=>c.style.borderColor='',900);}
+  document.getElementById('ti'+id).value='';
+  UL(dt,sh);
+}
+
+function MA(id,dt,sh,abs){
+  if(abs){
+    const r={empId:id,date:dt,shift:sh,timeIn:'',status:'absent'};
+    atts.push(r);sv();
+    document.getElementById('ti'+id).value='';
+    document.getElementById('es'+id).innerHTML=SB(r);
+  } else {
+    for(let i=atts.length-1;i>=0;i--){
+      if(atts[i].empId===id&&atts[i].date===dt&&atts[i].shift===sh){atts.splice(i,1);break;}
+    }
+    sv();
+    const rs=atts.filter(a=>a.empId===id&&a.date===dt&&a.shift===sh);
+    const lr=rs.length?rs[rs.length-1]:null;
+    const ct=rs.length?`<span style="background:rgba(168,85,247,.18);color:var(--a2);border:1px solid rgba(168,85,247,.3);border-radius:10px;padding:1px 6px;font-size:.65rem">${rs.length}ដង</span>`:'';
+    document.getElementById('es'+id).innerHTML=lr?SB(lr)+' '+ct:'';
+    document.getElementById('ti'+id).value='';
+  }
+  UL(dt,sh);
+}
+
+function UL(dt,sh){
+  const rs=atts.filter(a=>a.date===dt&&a.shift===sh);
+  let on=0,late=0,ab=0;
+  rs.forEach(r=>{if(r.status==='absent'){ab++;return;}CL(r.timeIn,r.shift)==='ontime'?on++:late++;});
+  const uw=new Set(rs.map(r=>r.empId)).size;
+  document.getElementById('s1').textContent=on;
+  document.getElementById('s2').textContent=late;
+  document.getElementById('s3').textContent=ab;
+  document.getElementById('s4').textContent=emps.length-uw;
+}
+
+// ---- HISTORY ----
+function FHS(){
+  document.getElementById('he').innerHTML='<option value="">-- ទាំងអស់ --</option>'+
+    emps.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+}
+function RH(){
+  const fd=document.getElementById('hd').value,fe=document.getElementById('he').value,fs=document.getElementById('hs').value;
+  let rs=[...atts];
+  if(fd)rs=rs.filter(r=>r.date===fd);
+  if(fe)rs=rs.filter(r=>r.empId===parseInt(fe));
+  if(fs)rs=rs.filter(r=>r.shift===fs);
+  rs.sort((a,b)=>b.date.localeCompare(a.date)||a.empId-b.empId);
+  const tb=document.getElementById('hb');
+  if(!rs.length){tb.innerHTML='<tr><td colspan="6"><div class="es"><div class="ic">🗂️</div>មិនទាន់មាន</div></td></tr>';return;}
+  tb.innerHTML=rs.map(r=>{
+    const e=emps.find(x=>x.id===r.empId)||{name:'?',role:'?'};
+    return `<tr><td><strong>${e.name}</strong></td><td>${e.role}</td><td>${r.date}</td>
+      <td>${r.shift==='morning'?'☀️ ព្រឹក':'🌤️ រសៀល'}</td>
+      <td>${r.timeIn||'-'}</td><td>${SB(r)}</td></tr>`;
+  }).join('');
+}
+
+// ---- STATS ----
+function GS(emp){
+  const rs=atts.filter(a=>a.empId===emp.id);
+  let mo=0,ml=0,ao=0,al=0,ab=0;
+  rs.forEach(r=>{
+    if(r.status==='absent'){ab++;return;}
+    if(r.shift==='morning')CL(r.timeIn,'morning')==='ontime'?mo++:ml++;
+    else CL(r.timeIn,'afternoon')==='ontime'?ao++:al++;
+  });
+  const tot=rs.length,ot=mo+ao,sc=(mo+ao)*10+(ml+al)*5-ab*8,pct=tot?Math.round(ot/tot*100):0;
+  return{mo,ml,ao,al,ab,tot,sc,pct};
+}
+
+// ---- REPORT ----
+function UR(){
+  document.getElementById('rt').textContent=emps.length;
+  document.getElementById('rr').textContent=atts.length;
+  const rk=emps.map(e=>({...e,...GS(e)})).sort((a,b)=>b.sc-a.sc);
+  const wr=rk.filter(e=>e.tot>0);
+  const ton=wr.reduce((s,e)=>s+e.mo+e.ao,0),trec=wr.reduce((s,e)=>s+e.tot,0);
+  document.getElementById('rp').textContent=trec?Math.round(ton/trec*100)+'%':'0%';
+  document.getElementById('rtop').textContent=wr.length?wr[0].name:'-';
+  const tb=document.getElementById('rb');
+  if(!emps.length){tb.innerHTML='<tr><td colspan="8"><div class="es"><div class="ic">📊</div>មិនទាន់មាន</div></td></tr>';return;}
+  tb.innerHTML=rk.map(e=>`<tr>
+    <td><strong>${e.name}</strong></td>
+    <td style="color:var(--td);font-size:.73rem">${e.role}</td>
+    <td><strong style="color:var(--gr)">${e.mo}</strong></td>
+    <td><strong style="color:var(--r)">${e.ml}</strong></td>
+    <td><strong style="color:var(--gr)">${e.ao}</strong></td>
+    <td><strong style="color:var(--r)">${e.al}</strong></td>
+    <td><span style="color:#aaa">${e.ab}</span></td>
+    <td><strong style="color:var(--a2)">${e.sc}</strong></td>
+  </tr>`).join('');
+}
+
+// ---- LATE REPORT PREVIEW + DOWNLOAD ----
+function BLD(tf,df){
+  let lr=atts.filter(r=>{
+    if(r.status==='absent')return false;
+    if(CL(r.timeIn,r.shift)!=='late')return false;
+    if(df&&r.date!==df)return false;
+    if(tf==='morning'&&r.shift!=='morning')return false;
+    if(tf==='afternoon'&&r.shift!=='afternoon')return false;
+    return true;
+  });
+  lr.sort((a,b)=>a.empId-b.empId||a.date.localeCompare(b.date));
+  const cm={};
+  lr.forEach(r=>{cm[r.empId]=(cm[r.empId]||0)+1;});
+  return{lr,cm};
+}
+
+function RLP(){
+  const tf=document.getElementById('dt').value,df=document.getElementById('dd').value;
+  const{lr,cm}=BLD(tf,df);
+  const tb=document.getElementById('lpb'),w=document.getElementById('lpw');
+  w.style.display='block';
+  if(!lr.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--gr);padding:14px">✅ មិនមានអ្នកយឺតទេ!</td></tr>';return;}
+  const slb={morning:'☀️ ព្រឹក',afternoon:'🌤️ រសៀល'};
+  tb.innerHTML=lr.map((r,i)=>{
+    const e=emps.find(x=>x.id===r.empId)||{name:'?',role:'?'};
+    const[h,m]=r.timeIn.split(':').map(Number);
+    const cut=r.shift==='morning'?425:785,df2=(h*60+m)-cut;
+    return `<tr>
+      <td>${i+1}</td>
+      <td><strong>${e.name}</strong></td>
+      <td style="color:var(--td);font-size:.73rem">${e.role}</td>
+      <td>${r.date}</td><td>${slb[r.shift]}</td>
+      <td style="color:var(--r)">${r.timeIn}</td>
+      <td style="color:var(--r)">${df2>0?'+'+df2+'នាទី':'-'}</td>
+      <td><span style="background:rgba(231,76,60,.18);color:var(--r);border:1px solid rgba(231,76,60,.3);border-radius:10px;padding:1px 8px;font-weight:700">${cm[r.empId]}ដង</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function DLR(){
+  const tf=document.getElementById('dt').value,df=document.getElementById('dd').value;
+  const{lr,cm}=BLD(tf,df);
+  RLP();
+  if(!lr.length){alert('មិនមានទិន្នន័យអ្នកយឺតទេ!');return;}
+
+  const em2={};
+  lr.forEach(r=>{
+    const e=emps.find(x=>x.id===r.empId)||{name:'?',role:'?'};
+    if(!em2[r.empId])em2[r.empId]={name:e.name,role:e.role,recs:[]};
+    const[h,m]=r.timeIn.split(':').map(Number);
+    const cut=r.shift==='morning'?425:785,diff=(h*60+m)-cut;
+    em2[r.empId].recs.push({date:r.date,shift:r.shift==='morning'?'ព្រឹក':'រសៀល',timeIn:r.timeIn,late_by:diff>0?'+'+diff+' នាទី':'-'});
+  });
+
+  const wb=XLSX.utils.book_new();
+
+  // Sheet 1: Summary
+  const sr=[['លេខ','ឈ្មោះ','តួនាទី','ចំនួនដងយឺត','ថ្ងៃដំបូងយឺត','ថ្ងៃចុងក្រោយយឺត']];
+  Object.values(em2).sort((a,b)=>b.recs.length-a.recs.length).forEach((e,i)=>{
+    const ds=e.recs.map(r=>r.date).sort();
+    sr.push([i+1,e.name,e.role,e.recs.length,ds[0]||'',ds[ds.length-1]||'']);
+  });
+  const ws1=XLSX.utils.aoa_to_sheet(sr);
+  ws1['!cols']=[{wch:5},{wch:26},{wch:20},{wch:14},{wch:13},{wch:13}];
+  XLSX.utils.book_append_sheet(wb,ws1,'សង្ខេបអ្នកយឺត');
+
+  // Sheet 2: Detail
+  const dr=[['លេខ','ឈ្មោះ','តួនាទី','ថ្ងៃ','វេន','ម៉ោងចូល','យឺតប៉ុន្មាន','ដងយឺតសរុប']];
+  lr.forEach((r,i)=>{
+    const e=emps.find(x=>x.id===r.empId)||{name:'?',role:'?'};
+    const[h,m]=r.timeIn.split(':').map(Number);
+    const cut=r.shift==='morning'?425:785,diff=(h*60+m)-cut;
+    dr.push([i+1,e.name,e.role,r.date,r.shift==='morning'?'ព្រឹក':'រសៀល',r.timeIn,diff>0?'+'+diff+' នាទី':'-',cm[r.empId]]);
+  });
+  const ws2=XLSX.utils.aoa_to_sheet(dr);
+  ws2['!cols']=[{wch:5},{wch:26},{wch:20},{wch:12},{wch:9},{wch:9},{wch:16},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws2,'ព័ត៌មានលម្អិត');
+
+  const tp=tf==='all'?'ព្រឹក+រសៀល':tf==='morning'?'ព្រឹក':'រសៀល';
+  XLSX.writeFile(wb,'យឺត_'+tp+'_'+(df||'ទាំងអស់')+'.xlsx');
+  TT('✅ Download រួចរាល់!');
+}
+
+// ---- RANKING ----
+function URK(){
+  const rk=emps.map(e=>({...e,...GS(e)})).filter(e=>e.tot>0).sort((a,b)=>b.sc-a.sc);
+  const c=document.getElementById('rl');
+  if(!rk.length){c.innerHTML='<div class="es"><div class="ic">🏆</div>មិនទាន់មាន</div>';return;}
+  const mx=rk[0].sc||1;
+  c.innerHTML=rk.map((e,i)=>{
+    const rc=['r1','r2','r3'][i]||'ro',rl=['🥇','🥈','🥉'][i]||(i+1);
+    const bw=Math.max(0,Math.min(100,(e.sc/mx)*100));
+    return `<div class="ri">
+      <div class="rn ${rc}">${rl}</div>
+      <div class="rinfo">
+        <div class="rname">${e.name}</div>
+        <div class="rdet">${e.role} · ☀️${e.mo}+${e.ml} | 🌤️${e.ao}+${e.al} | ❌${e.ab}</div>
+      </div>
+      <div class="rbw"><div class="rb"><div class="rbf" style="width:${bw}%"></div></div><div class="rp">${e.pct}%</div></div>
+      <button class="btn btn-s ${i===0?'btn-g':''}" style="${i!==0?'background:var(--cb);border:1px solid var(--b);color:var(--td)':''}" onclick="SC(${e.id})">📜</button>
+    </div>`;
+  }).join('');
+}
+
+// ---- EMPLOYEES ----
+function AE(){
+  const n=document.getElementById('nn').value.trim(),r=document.getElementById('nr').value.trim();
+  if(!n){TT('សូមបញ្ចូលឈ្មោះ!',0);return;}
+  emps.push({id:Date.now(),name:n,role:r});sv();RET();
+  document.getElementById('nn').value='';document.getElementById('nr').value='';
+  TT('✅ បន្ថែមរួចរាល់!');
+}
+function DEL(id){
+  if(!confirm('លុបបុគ្គលិកនេះ?'))return;
+  emps=emps.filter(e=>e.id!==id);atts=atts.filter(a=>a.empId!==id);sv();RET();TT('🗑️ លុបរួចរាល់!');
+}
+function RET(){
+  document.getElementById('etb').innerHTML=emps.map((e,i)=>`<tr>
+    <td>${i+1}</td><td><strong>${e.name}</strong></td><td>${e.role}</td>
+    <td><button class="btn btn-s" style="background:rgba(231,76,60,.15);color:var(--r);border:1px solid rgba(231,76,60,.3)" onclick="DEL(${e.id})">🗑️</button></td>
+  </tr>`).join('');
+}
+
+// ---- CERTIFICATE ----
+function SC(id){
+  const emp=emps.find(e=>e.id===id);if(!emp)return;
+  const s=GS(emp),td=new Date().toLocaleDateString('km-KH',{year:'numeric',month:'long',day:'numeric'});
+  const rk=emps.map(e=>({...e,...GS(e)})).filter(e=>e.tot>0).sort((a,b)=>b.sc-a.sc);
+  const rank=rk.findIndex(e=>e.id===id)+1,isTop=rank===1;
+  const med=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'🏅';
+  document.getElementById('cc').innerHTML=`<div class="cert" id="CERT">
+    <div class="cib">
+      <div class="clogo"><img src="${LOGO}" alt="Logo" onerror="this.style.display='none'"></div>
+      <div class="csn">គ្រឹះស្ថានសិក្សា Mikid</div>
+      <div class="cst">★ ★ ★ ★ ★</div>
+      <div class="ctm">ប័ណ្ណសរសើរ${isTop?'<br>បុគ្គលិកឆ្នើម':''}</div>
+      <div class="csub">Certificate of ${isTop?'Excellence':'Appreciation'}</div>
+      <div class="cdiv">✦</div>
+      <div class="cbody">
+        <div class="cpre">ផ្ដល់ជូនដោយថ្នាក់ដឹកនាំ</div>
+        <div class="cname">${emp.name}</div>
+        <div class="cpos">${emp.role}</div>
+        <div class="cdesc">ដែលបានបង្ហាញការខិតខំ ម្ចាស់ករណ៍ ស្មោះត្រង់<br>
+        ចំណាត់ថ្នាក់ <strong style="color:#8B1A1A">#${rank}</strong> ·
+        ពិន្ទុ <strong style="color:#8B1A1A">${s.sc}</strong> ·
+        វត្តមាន <strong style="color:#8B1A1A">${s.pct}%</strong></div>
+      </div>
+      <div class="cft">
+        <div class="csig"><div class="csl"></div><div class="csln">អ្នកគ្រប់គ្រង</div></div>
+        <div class="cmed"><div class="cme">${med}</div></div>
+        <div class="csig"><div class="csl"></div><div class="csln">${td}</div></div>
+      </div>
+    </div>
+  </div>`;
+  document.getElementById('co').classList.add('show');
+}
+function CC(){document.getElementById('co').classList.remove('show');}
+function PC(){
+  const cert=document.getElementById('CERT').outerHTML;
+  const css=[
+    'body{margin:0;padding:20px;background:#fff}',
+    '.cert{padding:28px 38px;background:#FFFDF7;border:10px solid #D4AF37;font-family:Georgia,serif;color:#1a1a1a;text-align:center}',
+    '.cib{border:2px solid rgba(212,175,55,.4);padding:18px 26px}',
+    '.clogo{margin-bottom:6px;display:flex;justify-content:center}',
+    '.clogo img{height:76px;width:auto;object-fit:contain}',
+    '.csn{font-family:"Moul",serif;font-size:.84rem;color:#8B1A1A;margin-bottom:2px}',
+    '.cst{color:#D4AF37;font-size:.9rem;letter-spacing:4px;margin:5px 0}',
+    '.ctm{font-family:"Moul",serif;font-size:1.55rem;color:#8B1A1A;margin:7px 0;line-height:1.3}',
+    '.csub{font-size:.76rem;color:#888;text-transform:uppercase;letter-spacing:.15em;margin-bottom:9px}',
+    '.cdiv{display:flex;align-items:center;gap:9px;margin:10px 0;color:#D4AF37}',
+    '.cdiv::before,.cdiv::after{content:"";flex:1;height:1px;background:linear-gradient(to right,transparent,#D4AF37,transparent)}',
+    '.cbody{font-size:.86rem;color:#333;line-height:2.1}',
+    '.cpre{font-size:.78rem;color:#777;font-style:italic}',
+    '.cname{font-family:"Battambang",serif;font-size:1.9rem;color:#2C3E7A;font-weight:700;margin:5px 0;text-decoration:underline;text-decoration-color:#D4AF37}',
+    '.cpos{font-size:.88rem;color:#555;font-style:italic;margin-bottom:8px}',
+    '.cdesc{font-size:.79rem;color:#444;line-height:1.9;margin-bottom:9px}',
+    '.cft{margin-top:18px;display:flex;justify-content:space-between;align-items:flex-end}',
+    '.csig{text-align:center}',
+    '.csl{width:110px;border-bottom:1px solid #555;margin:0 auto 4px}',
+    '.csln{font-size:.69rem;color:#666;font-family:"Battambang",serif}',
+    '.cmed{display:flex;flex-direction:column;align-items:center}',
+    '.cme{font-size:3.2rem;line-height:1}'
+  ].join('');
+  const html=[
+    '<!DOCTYPE html><html><head>',
+    '<link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Moul&display=swap" rel="stylesheet">',
+    '<style>',css,'<\/style>',
+    '<\/head><body>',cert,
+    '<scr'+'ipt>window.onload=function(){window.print()}<\/scr'+'ipt>',
+    '<\/body><\/html>'
+  ].join('');
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  window.open(url,'_blank');
+}
+
+// INIT
+document.getElementById('ad').value=new Date().toISOString().split('T')[0];
+RAE();
+</script>
+</body>
+</html>
